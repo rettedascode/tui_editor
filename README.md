@@ -13,15 +13,35 @@ A terminal-based code editor written in Rust with file and folder support.
 
 ## Installation
 
-1. Make sure you have Rust installed on your system
-2. Clone this repository
-3. Run the following command to build and run:
+### Windows 10/11
 
-```bash
-cargo run
-```
+1. Open PowerShell
+2. Run:
+   ```powershell
+   .\install.ps1
+   ```
+   This will install Rust (if missing), build the project, and copy the binary to your cargo bin directory.
+
+### Linux
+
+1. Open a terminal
+2. Run:
+   ```bash
+   bash ./install.sh
+   ```
+   This will install Rust (if missing), build the project, and copy the binary to your cargo bin directory.
+
+**Note:**
+- On Windows, run each command on its own line in PowerShell. Do not use `&&` for chaining commands.
+- On Linux/macOS, you can use `&&` to chain commands.
 
 ## Usage
+
+### CLI Options
+You can launch the editor with:
+- `tui_editor -f <file>` to open a specific file
+- `tui_editor -d <directory>` to open a specific directory in the file explorer
+- You can combine them: `tui_editor -d code/ -f code/main.rs`
 
 ### Navigation
 - **Arrow Keys**: Move cursor
@@ -66,6 +86,7 @@ src/
 - **walkdir**: Directory traversal
 - **anyhow**: Error handling
 - **syntect**: Syntax highlighting (optional)
+- **clap**: Command-line argument parsing
 
 ## Key Features Explained
 
@@ -117,4 +138,4 @@ Feel free to contribute to this project by:
 
 ## License
 
-This project is open source and available under the MIT License. #
+This project is open source and available under the MIT License.
