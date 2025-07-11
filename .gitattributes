@@ -1,0 +1,12 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Force CRLF (Windows) line endings for all text files
+*.rs   text eol=crlf
+*.md   text eol=crlf
+*.toml text eol=crlf
+
+# Binary files should be treated as binary and not modified
+*.png  binary
+*.jpg  binary
+*.gif  binary 
