@@ -1,0 +1,24 @@
+[package]
+name = "tui_editor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# TUI framework
+ratatui = "0.26.0"
+crossterm = "0.27.0"
+
+# File system operations
+walkdir = "2.4.0"
+
+# Text processing
+ropey = "1.6.0"
+
+# Error handling
+anyhow = "1.0.75"
+
+# Path handling
+path-absolutize = "3.1.0"
+
+# Optional: syntax highlighting
+syntect = "5.0.0"
