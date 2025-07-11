@@ -1,5 +1,7 @@
 # TUI Code Editor
 
+![CI](https://github.com/rettedascode/tui_editor/actions/workflows/ci.yml/badge.svg)
+
 A terminal-based code editor written in Rust with file and folder support.
 
 ## Features
@@ -127,6 +129,17 @@ The status bar displays:
 - [ ] Plugin system
 - [ ] Configuration file support
 - [ ] Themes and color schemes
+
+## Code Quality
+
+This project uses [rustfmt](https://github.com/rust-lang/rustfmt) for code formatting and [clippy](https://github.com/rust-lang/rust-clippy) for linting. A GitHub Actions workflow checks formatting, lints, and builds on every push and pull request.
+
+### Local checks
+- Format code: `cargo fmt --all`
+- Lint code: `cargo clippy --all-targets --all-features -- -D warnings`
+
+### Continuous Integration
+- See the badge above for the latest CI status.
 
 ## Contributing
 
