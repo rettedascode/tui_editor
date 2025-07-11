@@ -3,7 +3,6 @@ use ratatui::text::Span;
 use syntect::easy::HighlightLines;
 use syntect::highlighting::{Style as SyntectStyle, ThemeSet};
 use syntect::parsing::{SyntaxReference, SyntaxSet};
-use syntect::util::LinesWithEndings;
 
 /// Highlighter provides syntax highlighting for code using syntect and ratatui.
 pub struct Highlighter {
