@@ -94,23 +94,33 @@ impl App {
         self.tabs.get(self.current_tab)
     }
 
-    pub fn get_current_tab_mut(&mut self) -> Option<&mut Tab> {
-        self.tabs.get_mut(self.current_tab)
+    pub fn open_file<P: Into<PathBuf>>(&mut self, path: P) -> Result<()> {
+        let path = path.into();
+        let content = std::fs::read_to_string(&path).unwrap_or_default();
+        let name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("Untitled")
+            .to_string();
+        let tab = Tab {
+            path: Some(path.clone()),
+            content: Rope::from(content),
+            editor: Editor::new(),
+            modified: false,
+            name,
+        };
+        self.tabs.push(tab);
+        self.current_tab = self.tabs.len() - 1;
+        self.set_status_message(format!("Opened file: {}", path.display()));
+        Ok(())
     }
 
-    pub fn next_tab(&mut self) {
-        if !self.tabs.is_empty() {
-            self.current_tab = (self.current_tab + 1) % self.tabs.len();
-        }
+    pub fn set_directory<P: Into<PathBuf>>(&mut self, dir: P) -> Result<()> {
+        let dir = dir.into();
+        self.file_explorer.current_path = dir.clone();
+        self.file_explorer.root = crate::file_explorer::FileNode::new(dir);
+        self.file_explorer.root.load_children()?;
+        self.file_explorer.root.expanded = true;
+        Ok(())
     }
-
-    pub fn prev_tab(&mut self) {
-        if !self.tabs.is_empty() {
-            self.current_tab = if self.current_tab == 0 {
-                self.tabs.len() - 1
-            } else {
-                self.current_tab - 1
-            };
-        }
-    }
-} 
+}

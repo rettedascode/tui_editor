@@ -17,9 +17,9 @@ impl FileNode {
             .and_then(|n| n.to_str())
             .unwrap_or("Unknown")
             .to_string();
-        
+
         let is_dir = path.is_dir();
-        
+
         Self {
             path,
             name,
@@ -40,14 +40,15 @@ impl FileNode {
         for entry in entries {
             let entry = entry?;
             let path = entry.path();
-            
+
             // Skip hidden files and common ignore patterns
             if let Some(name) = path.file_name() {
                 let name_str = name.to_string_lossy();
-                if name_str.starts_with('.') || 
-                   name_str == "target" || 
-                   name_str == "node_modules" ||
-                   name_str == ".git" {
+                if name_str.starts_with('.')
+                    || name_str == "target"
+                    || name_str == "node_modules"
+                    || name_str == ".git"
+                {
                     continue;
                 }
             }
@@ -56,27 +57,13 @@ impl FileNode {
         }
 
         // Sort: directories first, then files, both alphabetically
-        children.sort_by(|a, b| {
-            match (a.is_dir, b.is_dir) {
-                (true, false) => std::cmp::Ordering::Less,
-                (false, true) => std::cmp::Ordering::Greater,
-                _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-            }
+        children.sort_by(|a, b| match (a.is_dir, b.is_dir) {
+            (true, false) => std::cmp::Ordering::Less,
+            (false, true) => std::cmp::Ordering::Greater,
+            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
         });
 
         self.children = children;
-        Ok(())
-    }
-
-    pub fn toggle_expanded(&mut self) -> Result<()> {
-        if self.is_dir {
-            if self.expanded {
-                self.expanded = false;
-            } else {
-                self.load_children()?;
-                self.expanded = true;
-            }
-        }
         Ok(())
     }
 
@@ -84,11 +71,15 @@ impl FileNode {
         let mut lines = Vec::new();
         let indent = "  ".repeat(depth);
         let prefix = if self.is_dir {
-            if self.expanded { "📂 " } else { "📁 " }
+            if self.expanded {
+                "📂 "
+            } else {
+                "📁 "
+            }
         } else {
             "📄 "
         };
-        
+
         lines.push(format!("{}{}{}", indent, prefix, self.name));
 
         if self.expanded {
@@ -111,7 +102,7 @@ impl FileExplorer {
     pub fn new() -> Result<Self> {
         let current_dir = std::env::current_dir()?;
         let root = FileNode::new(current_dir.clone());
-        
+
         Ok(Self {
             root,
             current_path: current_dir,
@@ -126,58 +117,8 @@ impl FileExplorer {
         Ok(())
     }
 
-    pub fn get_all_files(&self) -> Vec<PathBuf> {
-        let mut files = Vec::new();
-        self.collect_files(&self.root, &mut files);
-        files
-    }
-
-    fn collect_files(&self, node: &FileNode, files: &mut Vec<PathBuf>) {
-        if !node.is_dir {
-            files.push(node.path.clone());
-        } else if node.expanded {
-            for child in &node.children {
-                self.collect_files(child, files);
-            }
-        }
-    }
-
     pub fn get_display_lines(&self) -> Vec<String> {
         self.root.get_display_lines(0)
-    }
-
-    pub fn select_file(&mut self, index: usize) -> Option<PathBuf> {
-        let files = self.get_all_files();
-        if index < files.len() {
-            self.selected_index = index;
-            Some(files[index].clone())
-        } else {
-            None
-        }
-    }
-
-    pub fn get_selected_file(&self) -> Option<PathBuf> {
-        let files = self.get_all_files();
-        files.get(self.selected_index).cloned()
-    }
-
-    pub fn move_selection(&mut self, direction: i32) {
-        let files = self.get_all_files();
-        if files.is_empty() {
-            return;
-        }
-
-        let new_index = if direction > 0 {
-            (self.selected_index + 1) % files.len()
-        } else {
-            if self.selected_index == 0 {
-                files.len() - 1
-            } else {
-                self.selected_index - 1
-            }
-        };
-
-        self.selected_index = new_index;
     }
 
     pub fn open_file(&mut self, path: &Path) -> Result<()> {
@@ -193,23 +134,4 @@ impl FileExplorer {
             Err(anyhow::anyhow!("Path does not exist"))
         }
     }
-
-    pub fn get_file_info(&self, path: &Path) -> Result<FileInfo> {
-        let metadata = std::fs::metadata(path)?;
-        let size = metadata.len();
-        let modified = metadata.modified()?;
-        
-        Ok(FileInfo {
-            size,
-            modified,
-            is_readonly: metadata.permissions().readonly(),
-        })
-    }
 }
-
-#[derive(Debug)]
-pub struct FileInfo {
-    pub size: u64,
-    pub modified: std::time::SystemTime,
-    pub is_readonly: bool,
-} 

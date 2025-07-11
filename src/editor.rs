@@ -18,7 +18,6 @@ impl Position {
 pub struct Editor {
     pub cursor: Position,
     pub scroll_offset: Position,
-    pub selection_start: Option<Position>,
 }
 
 impl Editor {
@@ -26,7 +25,6 @@ impl Editor {
         Self {
             cursor: Position::new(0, 0),
             scroll_offset: Position::new(0, 0),
-            selection_start: None,
         }
     }
 
@@ -110,7 +108,7 @@ impl Editor {
             // Join with previous line
             let line_start = content.line_to_char(self.cursor.row);
             let prev_line_len = content.line(self.cursor.row - 1).len_chars();
-            
+
             content.remove(line_start - 1..line_start);
             self.cursor.row -= 1;
             self.cursor.col = prev_line_len;
@@ -213,7 +211,7 @@ impl Editor {
     pub fn get_visible_lines(&self, content: &Rope, height: usize) -> Vec<String> {
         let start_line = self.scroll_offset.row;
         let end_line = cmp::min(start_line + height, content.len_lines());
-        
+
         (start_line..end_line)
             .map(|i| content.line(i).to_string())
             .collect()
@@ -233,4 +231,4 @@ impl Editor {
             self.scroll_offset.col = self.cursor.col.saturating_sub(width - 1);
         }
     }
-} 
+}

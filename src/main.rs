@@ -5,6 +5,7 @@ mod ui;
 
 use anyhow::Result;
 use app::App;
+use clap::Parser;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
@@ -16,7 +17,21 @@ use ratatui::{
 };
 use std::io;
 
+#[derive(Parser, Debug)]
+#[command(author, version, about)]
+struct Cli {
+    /// File to open
+    #[arg(short = 'f', long = "file")]
+    file: Option<String>,
+
+    /// Directory to open
+    #[arg(short = 'd', long = "dir")]
+    dir: Option<String>,
+}
+
 fn main() -> Result<()> {
+    let cli = Cli::parse();
+
     // Setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -25,7 +40,18 @@ fn main() -> Result<()> {
     let mut terminal = Terminal::new(backend)?;
 
     // Create app and run it
-    let app = App::new()?;
+    let mut app = App::new()?;
+
+    // If a directory is specified, set it as the root for the file explorer
+    if let Some(dir) = cli.dir {
+        app.set_directory(dir)?;
+    }
+
+    // If a file is specified, open it in a new tab
+    if let Some(file) = cli.file {
+        app.open_file(file)?;
+    }
+
     let res = run_app(&mut terminal, app);
 
     // Restore terminal
