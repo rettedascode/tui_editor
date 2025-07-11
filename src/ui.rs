@@ -163,7 +163,9 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
             .row
             .saturating_sub(editor_clone.scroll_offset.row);
 
-        if cursor_y < area.height.saturating_sub(2) as usize && cursor_x < area.width.saturating_sub(6) as usize {
+        if cursor_y < area.height.saturating_sub(2) as usize
+            && cursor_x < area.width.saturating_sub(6) as usize
+        {
             f.set_cursor_position((
                 area.x + cursor_x as u16 + 5, // +5 for line numbers
                 area.y + cursor_y as u16 + 1, // +1 for border
