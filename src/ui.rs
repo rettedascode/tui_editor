@@ -15,7 +15,7 @@ pub fn ui(f: &mut Frame, app: &mut App) {
             Constraint::Min(0),    // Main content
             Constraint::Length(1), // Status bar
         ])
-        .split(f.size());
+        .split(f.area());
 
     render_tabs(f, app, chunks[0]);
     render_main_content(f, app, chunks[1]);
@@ -163,13 +163,11 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
             .row
             .saturating_sub(editor_clone.scroll_offset.row);
 
-        if cursor_y < area.height.saturating_sub(2) as usize
-            && cursor_x < area.width.saturating_sub(6) as usize
-        {
-            f.set_cursor(
+        if cursor_y < area.height.saturating_sub(2) as usize && cursor_x < area.width.saturating_sub(6) as usize {
+            f.set_cursor_position((
                 area.x + cursor_x as u16 + 5, // +5 for line numbers
                 area.y + cursor_y as u16 + 1, // +1 for border
-            );
+            ));
         }
     }
 }
@@ -261,7 +259,7 @@ pub fn render_help(f: &mut Frame, app: &App) {
         .style(Style::default().fg(Color::White));
 
     // Center the help dialog
-    let popup_area = centered_rect(60, 20, f.size());
+    let popup_area = centered_rect(60, 20, f.area());
     f.render_widget(help_paragraph, popup_area);
 }
 

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub struct FileNode {
@@ -110,28 +110,7 @@ impl FileExplorer {
         })
     }
 
-    pub fn refresh(&mut self) -> Result<()> {
-        self.root = FileNode::new(self.current_path.clone());
-        self.root.load_children()?;
-        self.root.expanded = true;
-        Ok(())
-    }
-
     pub fn get_display_lines(&self) -> Vec<String> {
         self.root.get_display_lines(0)
-    }
-
-    pub fn open_file(&mut self, path: &Path) -> Result<()> {
-        if path.is_file() {
-            // File will be opened by the main app
-            Ok(())
-        } else if path.is_dir() {
-            self.current_path = path.to_path_buf();
-            self.refresh()?;
-            self.selected_index = 0;
-            Ok(())
-        } else {
-            Err(anyhow::anyhow!("Path does not exist"))
-        }
     }
 }
