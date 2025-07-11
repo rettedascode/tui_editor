@@ -114,3 +114,28 @@ impl FileExplorer {
         self.root.get_display_lines(0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+    use std::fs;
+
+    #[test]
+    fn test_filenode_new_for_current_dir() {
+        let cwd = env::current_dir().unwrap();
+        let node = FileNode::new(cwd.clone());
+        assert_eq!(node.name, cwd.file_name().unwrap().to_string_lossy());
+        assert!(node.is_dir);
+    }
+
+    #[test]
+    fn test_filenode_new_for_file() {
+        let file = "test_file_explorer.txt";
+        fs::write(file, "test").unwrap();
+        let node = FileNode::new(file.into());
+        assert_eq!(node.name, "test_file_explorer.txt");
+        assert!(!node.is_dir);
+        fs::remove_file(file).unwrap();
+    }
+}

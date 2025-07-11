@@ -1,6 +1,7 @@
 mod app;
 mod editor;
 mod file_explorer;
+mod highlight;
 mod ui;
 
 use anyhow::Result;
@@ -64,7 +65,7 @@ fn main() -> Result<()> {
     terminal.show_cursor()?;
 
     if let Err(err) = res {
-        println!("{:?}", err);
+        println!("{err:?}");
     }
 
     Ok(())
@@ -96,13 +97,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
                 }
                 KeyCode::Char('o') => {
                     if key.modifiers.contains(KeyModifiers::CONTROL) {
-                        app.open_file_dialog();
+                        // TODO: Implement open file dialog
+                        app.set_status_message("Open file dialog not implemented".to_string());
                     }
                 }
                 KeyCode::Char('s') => {
                     if key.modifiers.contains(KeyModifiers::CONTROL) {
                         if let Err(e) = app.save_current_file() {
-                            app.set_status_message(format!("Error saving file: {}", e));
+                            app.set_status_message(format!("Error saving file: {e}"));
                         }
                     }
                 }

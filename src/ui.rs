@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::highlight::Highlighter;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -33,7 +34,7 @@ fn render_tabs(f: &mut Frame, app: &App, area: Rect) {
                 name.push_str(" *");
             }
             if i == app.current_tab {
-                format!("▶ {}", name)
+                format!("▶ {name}")
             } else {
                 name
             }
@@ -77,7 +78,9 @@ fn render_main_content(f: &mut Frame, app: &mut App, area: Rect) {
     } else {
         chunks[0]
     };
-    render_editor(f, app, editor_area);
+    let highlighter = &app.highlighter;
+    let tab = app.get_current_tab();
+    render_editor(f, tab, editor_area, highlighter);
 }
 
 fn render_file_explorer(f: &mut Frame, app: &mut App, area: Rect) {
@@ -109,10 +112,20 @@ fn render_file_explorer(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_widget(list, area);
 }
 
-fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
-    if let Some(tab) = app.get_current_tab() {
+fn render_editor(
+    f: &mut Frame,
+    tab: Option<&crate::app::Tab>,
+    area: Rect,
+    highlighter: &Highlighter,
+) {
+    if let Some(tab) = tab {
         let editor = &tab.editor;
         let content = &tab.content;
+        let extension = tab
+            .path
+            .as_ref()
+            .and_then(|p| p.extension().and_then(|e| e.to_str()))
+            .unwrap_or("");
 
         // Ensure cursor is visible
         let mut editor_clone = editor.clone();
@@ -127,17 +140,14 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
 
         for (i, line) in visible_lines.iter().enumerate() {
             let line_num = start_line + i + 1;
-            let line_num_str = format!("{:4} ", line_num);
-
+            let line_num_str = format!("{line_num:4} ");
             let mut spans = vec![Span::styled(
                 line_num_str,
                 Style::default().fg(Color::DarkGray),
             )];
-
-            // Add line content with syntax highlighting (basic)
-            let content_span = Span::styled(line.clone(), Style::default().fg(Color::White));
-            spans.push(content_span);
-
+            // Add syntax-highlighted line content
+            let highlighted = highlighter.highlight_line(line, extension);
+            spans.extend(highlighted);
             display_lines.push(Line::from(spans));
         }
 
@@ -176,7 +186,7 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
 
 fn render_status_bar(f: &mut Frame, app: &App, area: Rect) {
     let status_text = if let Some(message) = &app.status_message {
-        format!(" {} ", message)
+        format!(" {message} ")
     } else if let Some(tab) = app.get_current_tab() {
         let cursor = &tab.editor.cursor;
         let total_lines = tab.content.len_lines();

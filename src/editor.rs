@@ -232,3 +232,17 @@ impl Editor {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_editor_new_initializes_cursor() {
+        let editor = Editor::new();
+        assert_eq!(editor.cursor.row, 0);
+        assert_eq!(editor.cursor.col, 0);
+        assert_eq!(editor.scroll_offset.row, 0);
+        assert_eq!(editor.scroll_offset.col, 0);
+    }
+}
